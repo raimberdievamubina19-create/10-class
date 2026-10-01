@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Классный уголок</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E9EEF4;
+  --ink:#16243A;
+  --muted:#5B6B82;
+  --paper:#FFFFFF;
+  --line:#D5DDE8;
+  --blue:#3B6FD4;   --blue-t:#DCE7FB;
+  --sun:#F2B62D;    --sun-t:#FDF0CB;
+  --green:#2E9B6A;  --green-t:#D5F0E3;
+  --coral:#E5654F;  --coral-t:#FBDDD6;
+  --accent:var(--blue); --accent-t:var(--blue-t);
+  --display:'Unbounded','Trebuchet MS',system-ui,sans-serif;
+  --body:'Golos Text',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--body);min-height:100vh;padding-bottom:40px}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px;border-radius:6px}
+
+.wrap{max-width:720px;margin:0 auto;padding:0 16px}
+
+/* Шапка */
+header{padding:28px 0 20px}
+.school{font-size:14px;color:var(--muted)}
+h1{font:700 clamp(30px,9vw,46px)/1.05 var(--display);letter-spacing:-.02em;margin:6px 0 10px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:15px;color:var(--muted)}
+.meta b{color:var(--ink);font-weight:500}
+
+/* Вкладки — цветные ярлычки-разделители */
+.tabs{display:flex;gap:6px;align-items:flex-end;overflow-x:auto;padding:0 0 0 2px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:1 0 auto;min-width:84px;border:0;cursor:pointer;font:500 14px/1.2 var(--body);color:var(--ink);
+  padding:12px 12px 10px;border-radius:14px 14px 0 0;background:var(--t);text-align:center;
+  transition:padding .15s ease;position:relative}
+.tab .ic{display:block;font-size:20px;line-height:1;margin-bottom:4px}
+.tab[aria-selected="true"]{background:var(--paper);padding-top:16px;box-shadow:inset 0 5px 0 var(--c)}
+.tab[data-k="students"]{--c:var(--blue);--t:var(--blue-t)}
+.tab[data-k="schedule"]{--c:var(--sun);--t:var(--sun-t)}
+.tab[data-k="duty"]{--c:var(--green);--t:var(--green-t)}
+.tab[data-k="parliament"]{--c:var(--coral);--t:var(--coral-t)}
+
+/* Лист */
+.sheet{background:var(--paper);border-radius:0 0 20px 20px;padding:24px 18px 28px;box-shadow:0 10px 30px -18px rgba(22,36,58,.35);min-height:420px}
+.sheet[hidden]{display:none}
+.sheet h2{font:700 22px/1.2 var(--display);letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:15px;margin:6px 0 18px}
+
+/* Ученики */
+.search{width:100%;font:inherit;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:#F7F9FC;margin-bottom:14px}
+.search:focus{border-color:var(--blue);outline:none;background:#fff}
+.students{list-style:none;padding:0;display:grid;grid-template-columns:1fr;gap:0}
+.students li{display:flex;align-items:baseline;gap:14px;padding:11px 2px;border-bottom:1px solid var(--line)}
+.students .n{flex:0 0 28px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
+.students .nm{font-weight:500}
+.students .tag{margin-left:auto;font-size:13px;background:var(--blue-t);color:#274B99;padding:2px 10px;border-radius:99px;white-space:nowrap}
+.empty{color:var(--muted);padding:18px 0}
+@media(min-width:560px){.students{grid-template-columns:1fr 1fr;column-gap:28px}}
+
+/* Расписание */
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;border:1.5px solid var(--line);background:#fff;font:500 15px var(--body);color:var(--ink);padding:8px 16px;border-radius:99px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip.today:not([aria-pressed="true"]){border-color:var(--sun);background:var(--sun-t)}
+.lessons{list-style:none;padding:0}
+.lesson{display:grid;grid-template-columns:34px 92px 1fr auto;gap:8px 12px;align-items:center;padding:13px 10px;border-radius:12px;border-bottom:1px solid var(--line)}
+.lesson .no{font:700 18px var(--display);color:var(--sun);-webkit-text-stroke:0}
+.lesson .tm{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.lesson .sb{font-weight:500}
+.lesson .rm{font-size:14px;color:var(--muted)}
+.lesson.now{background:var(--sun-t);border-bottom-color:transparent}
+.lesson.now .no{color:var(--ink)}
+.lesson .live{grid-column:3 / -1;font-size:13px;font-weight:600;color:#7A5300}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px}
+th,td{padding:10px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#F7F9FC;font-weight:600}
+td:first-child{color:var(--muted);text-align:center;width:36px}
+tr:last-child td{border-bottom:0}
+th.today,td.today{background:var(--sun-t)}
+
+/* Дежурство */
+.duty-day{border:1.5px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:10px}
+.duty-day.today{border-color:var(--green);background:var(--green-t)}
+.duty-day h3{font:600 16px var(--body);display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.badge{font-size:12px;font-weight:600;background:var(--green);color:#fff;padding:2px 9px;border-radius:99px}
+.people{display:flex;flex-wrap:wrap;gap:6px}
+.person{background:#fff;border:1px solid var(--line);padding:5px 12px;border-radius:99px;font-size:15px}
+.duty-day.today .person{border-color:#9AD3B8}
+.tasks{margin-top:22px}
+.tasks h3{font:600 16px var(--body);margin-bottom:8px}
+.tasks ul{padding-left:0;list-style:none}
+.tasks li{padding:8px 0 8px 30px;position:relative;border-bottom:1px solid var(--line)}
+.tasks li::before{content:"";position:absolute;left:4px;top:12px;width:14px;height:14px;border:2px solid var(--green);border-radius:4px}
+
+/* Парламент */
+.gov{list-style:none;padding:0;display:grid;gap:10px}
+.gov li{border-radius:16px;padding:14px 16px;background:var(--coral-t)}
+.gov .role{font:600 13px var(--body);color:#93321F}
+.gov .who{font:500 18px var(--body);margin:1px 0 2px}
+.gov .does{font-size:14px;color:#54301F}
+.gov li.head{background:var(--coral);color:#fff}
+.gov li.head .role,.gov li.head .does{color:#fff}
+@media(min-width:560px){.gov{grid-template-columns:1fr 1fr}.gov li.head{grid-column:1/-1}}
+.block{margin-top:26px}
+.block h3{font:600 17px var(--body);margin-bottom:10px}
+.next{border:2px dashed var(--coral);border-radius:16px;padding:14px 16px}
+.next b{display:block;font-size:18px;font-weight:500}
+.next span{color:var(--muted);font-size:15px}
+.decisions{list-style:none;padding:0}
+.decisions li{padding:10px 0;border-bottom:1px solid var(--line);display:flex;gap:12px}
+.decisions .d{flex:0 0 66px;color:var(--muted);font-size:14px;padding-top:1px}
+
+footer{text-align:center;color:var(--muted);font-size:13px;margin-top:18px}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media(max-width:400px){
+  .lesson{grid-template-columns:28px 1fr auto}
+  .lesson .tm{grid-column:2 / -1;grid-row:2}
+  .lesson .live{grid-column:2 / -1}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="school" id="school"></div>
+    <h1 id="cls"></h1>
+    <div class="meta" id="meta"></div>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Листы классного уголка">
+    <button class="tab" role="tab" data-k="students" id="t-students" aria-controls="s-students"><span class="ic">👥</span>Ученики</button>
+    <button class="tab" role="tab" data-k="schedule" id="t-schedule" aria-controls="s-schedule"><span class="ic">🗓️</span>Расписание</button>
+    <button class="tab" role="tab" data-k="duty" id="t-duty" aria-controls="s-duty"><span class="ic">🧹</span>Дежурство</button>
+    <button class="tab" role="tab" data-k="parliament" id="t-parliament" aria-controls="s-parliament"><span class="ic">🏛️</span>Парламент</button>
+  </div>
+
+  <main>
+    <section class="sheet" role="tabpanel" id="s-students" aria-labelledby="t-students" hidden>
+      <h2>Список учеников</h2>
+      <p class="sub" id="count"></p>
+      <input class="search" id="q" type="search" placeholder="Найти ученика" aria-label="Найти ученика">
+      <ol class="students" id="studentList"></ol>
+    </section>
+
+    <section class="sheet" role="tabpanel" id="s-schedule" aria-labelledby="t-schedule" hidden>
+      <h2>Расписание уроков</h2>
+      <p class="sub" id="schedSub"></p>
+      <div class="chips" id="chips"></div>
+      <div id="schedBody"></div>
+    </section>
+
+    <section class="sheet" role="tabpanel" id="s-duty" aria-labelledby="t-duty" hidden>
+      <h2>Дежурство по классу</h2>
+      <p class="sub" id="dutySub"></p>
+      <div id="dutyDays"></div>
+      <div class="tasks">
+        <h3>Что делает дежурный</h3>
+        <ul id="tasks"></ul>
+      </div>
+    </section>
+
+    <section class="sheet" role="tabpanel" id="s-parliament" aria-labelledby="t-parliament" hidden>
+      <h2>Парламент класса</h2>
+      <p class="sub">Ребята, которых выбрал класс.</p>
+      <ul class="gov" id="gov"></ul>
+      <div class="block">
+        <h3>Ближайшее заседание</h3>
+        <div class="next" id="next"></div>
+      </div>
+      <div class="block">
+        <h3>Решения прошлых заседаний</h3>
+        <ul class="decisions" id="decisions"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer id="foot"></footer>
+</div>
+
+<script>
+/* ============================================================
+   ЗДЕСЬ МЕНЯЕТСЯ ВСЁ СОДЕРЖАНИЕ. Остальной код трогать не нужно.
+   Замените примеры на данные вашего класса.
+   ============================================================ */
+const DATA = {
+  school: "Школа № 5",
+  className: "10 класс",
+  teacher: "Ашим кызы Гүлүмкан",
+  room: "",
+  year: "2026/2027 учебный год",
+
+  /* Ученики: имя и, если нужно, поручение (можно оставить пустым "") */
+  students: [
+    ["Абдималикова Айзирек","1–2 ряд"],
+    ["Көчкөнбаева Айжан","3 ряд"],
+    ["Раимбердиева Мубина","1–2 ряд"],
+    ["Айдарова Аделья","3 ряд"],
+    ["Зувурудунова Бегимай","1–2 ряд"],
+    ["Орунбаев Куштар","3 ряд"],
+    ["Мажитов Арген","3 ряд"],
+    ["Жолдошбаева Наргиза","1–2 ряд"],
+    ["Ибрагимова Тинатин","3 ряд"],
+    ["Абдуманнапова Раяна","1–2 ряд"],
+    ["Ташпулатова Нурия","1–2 ряд"],
+    ["Орунбаева Клара","1–2 ряд"],
+    ["Саттарова Зарина","1–2 ряд"],
+    ["Мамасыдыкова Раяна","1–2 ряд"],
+    ["Акимова Насыйкат","3 ряд"],
+    ["Кахаров Нуржигит","3 ряд"],
+    ["Токтоназаров Кайрат","3 ряд"],
+    ["Ганиева Асема","1–2 ряд"],
+    ["Юлдашев Абдурашит","3 ряд"]
+  ],
+
+  /* Время звонков */
+  bells: [
+    ["08:00","08:45"],["08:50","09:35"],["09:40","10:25"],
+    ["10:35","11:20"],["11:25","12:10"],["12:15","13:00"]
+  ],
+
+  /* Расписание: [предмет, кабинет] */
+  schedule: {
+    "Понедельник":[["Тарых",""],["Алгебра",""],["Физика",""],["География",""],["Чет.тил",""],["Тарб.саат",""]],
+    "Вторник":[["Орус.тил",""],["Алгебра",""],["Биология",""],["Литература",""],["Д.тарбия",""]],
+    "Среда":[["Адабият",""],["К.тил",""],["Химия",""],["Адабият",""],["Тарых",""],["Алгебра",""]],
+    "Четверг":[["Орус.тил",""],["Физика",""],["Алгебра",""],["Адам ж. коом",""],["Д.тарбия",""]],
+    "Пятница":[["Орус.тил",""],["К.тил",""],["Адабият",""],["Химия",""],["Чет.тил",""],["Физика",""]]
+  },
+
+  /* Дежурство: две недели по очереди, потом снова 1-я. По два дежурных на день */
+  dutyWeeks: [
+    { /* 1-я неделя */
+      "Понедельник":["Саттарова Зарина","Жолдошбаева Наргиза"],
+      "Вторник":["Мамасыдыкова Раяна","Зувурудунова Бегимай"],
+      "Среда":["Ташпулатова Нурия","Орунбаева Клара"],
+      "Четверг":["Абдималикова Айзирек","Ганиева Асема"],
+      "Пятница":["Раимбердиева Мубина","Абдуманнапова Раяна"]
+    },
+    { /* 2-я неделя */
+      "Понедельник":["Көчкөнбаева Айжан","Акимова Насыйкат"],
+      "Вторник":["Кахаров Нуржигит","Мажитов Арген"],
+      "Среда":["Ибрагимова Тинатин","Айдарова Аделья"],
+      "Четверг":["Юлдашев Абдурашит","Токтоназаров Кайрат"],
+      "Пятница":["Орунбаев Куштар","Көчкөнбаева Айжан"]
+    }
+  ],
+  /* Понедельник, с которого началась 1-я неделя: [год, месяц, число] */
+  dutyStart: [2026, 9, 28],
+  /* Кто дежурит на каждой неделе (подпись в заголовке) */
+  dutyLabels: ["1–2 ряд","3 ряд"],
+  dutyTasks: [
+    "Вытереть доску и приготовить мел или маркеры",
+    "Проветрить класс перед первым уроком и на переменах",
+    "Собрать тетради, если попросит учитель",
+    "Полить цветы (по вторникам и пятницам)",
+    "После уроков поднять стулья и проверить, что нет мусора"
+  ],
+
+  /* Парламент: должность, имя, чем занимается. Первый — председатель */
+  parliament: [
+    ["Староста класса","Раимбердиева Мубина","Ведёт заседания, говорит от имени класса","head"],
+    ["Заместитель","Мажитов Арген","Помогает старосте и заменяет его",""],
+    ["Учебный сектор","Ташпулатова Нурия","Помогает с учёбой и следит за оценками",""],
+    ["Спортивный сектор · мальчики","Кахаров Нуржигит","Организует спорт и соревнования для мальчиков",""],
+    ["Спортивный сектор · девочки","Айдарова Аделья","Организует спорт и соревнования для девочек",""],
+    ["Культурный сектор","Токтоназаров Кайрат","Готовит праздники и концерты",""],
+    ["Сектор чистоты","Абдуманнапова Раяна","Следит за чистотой в классе",""],
+    ["Женсовет","Көчкөнбаева Айжан","Представляет интересы девочек класса",""],
+    ["Мужсовет","Орунбаев Куштар","Представляет интересы мальчиков класса",""]
+  ],
+  nextMeeting: { title: "Заседание парламента", when: "Дата и время уточняются", topic: "Обсудим подготовку ко Дню шоколада и ко Дню учителя." },
+  decisions: [
+    ["19 сентября","Провести осенний субботник во дворе школы."],
+    ["12 сентября","Выбрать ответственных за стенгазету на каждый месяц."],
+    ["05 сентября","Принять правила класса и график дежурства."]
+  ]
+};
+/* ============================================================ */
+
+const DAYS = ["Воскресенье","Понедельник","Вторник","Среда","Четверг","Пятница","Суббота"];
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const now = new Date();
+const todayName = DAYS[now.getDay()];
+const WEEK = ["Понедельник","Вторник","Среда","Четверг","Пятница"];
+const focusDay = WEEK.includes(todayName) ? todayName : "Понедельник"; // в выходные показываем понедельник
+
+/* Шапка */
+document.title = "Классный уголок · " + DATA.className;
+$("#school").textContent = DATA.school;
+$("#cls").textContent = DATA.className;
+$("#meta").innerHTML = `<span>Классный руководитель: <b>${esc(DATA.teacher)}</b></span>${DATA.room?`<span><b>${esc(DATA.room)}</b></span>`:""}`;
+$("#foot").textContent = DATA.year;
+
+/* Ученики */
+function renderStudents(filter=""){
+  const f = filter.trim().toLowerCase();
+  const rows = DATA.students.map((s,i)=>({n:i+1,name:s[0],tag:s[1]})).filter(r=>r.name.toLowerCase().includes(f));
+  $("#studentList").innerHTML = rows.length
+    ? rows.map(r=>`<li value="${r.n}"><span class="n">${r.n}</span><span class="nm">${esc(r.name)}</span>${r.tag?`<span class="tag">${esc(r.tag)}</span>`:""}</li>`).join("")
+    : `<li class="empty">Никого не нашли. Проверьте написание фамилии.</li>`;
+}
+$("#count").textContent = `В классе ${DATA.students.length} учеников`;
+$("#q").addEventListener("input",e=>renderStudents(e.target.value));
+renderStudents();
+
+/* Расписание */
+let schedDay = focusDay;
+function toMin(t){const [h,m]=t.split(":").map(Number);return h*60+m}
+function renderSchedule(){
+  $("#chips").innerHTML = WEEK.map(d=>
+    `<button class="chip ${d===todayName?"today":""}" aria-pressed="${d===schedDay}" data-d="${d}">${d.slice(0,2)}</button>`
+  ).join("") + `<button class="chip" aria-pressed="${schedDay==="week"}" data-d="week">Вся неделя</button>`;
+  $("#chips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{schedDay=b.dataset.d;renderSchedule()});
+
+  if(schedDay==="week"){
+    const max = Math.max(...WEEK.map(d=>DATA.schedule[d].length));
+    let h = `<div class="tablewrap"><table><thead><tr><th></th>${WEEK.map(d=>`<th class="${d===todayName?"today":""}">${d.slice(0,2)}</th>`).join("")}</tr></thead><tbody>`;
+    for(let i=0;i<max;i++){
+      h += `<tr><td>${i+1}</td>${WEEK.map(d=>{const l=DATA.schedule[d][i];return `<td class="${d===todayName?"today":""}">${l?esc(l[0]):""}</td>`}).join("")}</tr>`;
+    }
+    $("#schedBody").innerHTML = h + "</tbody></table></div>";
+    $("#schedSub").textContent = "Все уроки на неделю.";
+    return;
+  }
+  const list = DATA.schedule[schedDay]||[];
+  const nowMin = now.getHours()*60+now.getMinutes();
+  const isToday = schedDay===todayName;
+  $("#schedSub").textContent = isToday ? `Сегодня, ${schedDay.toLowerCase()}. Уроков: ${list.length}.` : `${schedDay}. Уроков: ${list.length}.`;
+  $("#schedBody").innerHTML = `<ol class="lessons">` + list.map((l,i)=>{
+    const b = DATA.bells[i]||["",""];
+    const live = isToday && b[0] && nowMin>=toMin(b[0]) && nowMin<toMin(b[1]);
+    return `<li class="lesson ${live?"now":""}"><span class="no">${i+1}</span><span class="tm">${b[0]}–${b[1]}</span><span class="sb">${esc(l[0])}</span><span class="rm">${esc(l[1])}</span>${live?`<span class="live">Идёт сейчас</span>`:""}</li>`;
+  }).join("") + `</ol>`;
+}
+renderSchedule();
+
+/* Дежурство */
+function mondayOf(d){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x}
+const dutyBase = mondayOf(new Date(DATA.dutyStart[0],DATA.dutyStart[1]-1,DATA.dutyStart[2]));
+const isWeekend = now.getDay()===0 || now.getDay()===6;
+const curMonday = mondayOf(now); if(isWeekend) curMonday.setDate(curMonday.getDate()+7); // в выходные показываем ближайшую неделю
+function weekBlock(mon,title,isCur){
+  const n = DATA.dutyWeeks.length;
+  const diff = Math.round((mon - dutyBase)/(7*864e5));
+  const idx = ((diff%n)+n)%n; const wk = DATA.dutyWeeks[idx]; const label = DATA.dutyLabels[idx];
+  const fri = new Date(mon); fri.setDate(fri.getDate()+4);
+  const f = d=>d.toLocaleDateString("ru-RU",{day:"numeric",month:"long"});
+  return `<h3 style="font:600 17px var(--body);margin:0 0 2px">${title}<span class="badge" style="margin-left:8px">${label}</span></h3><p class="sub" style="margin:0 0 10px">${f(mon)} – ${f(fri)}</p>`
+    + WEEK.map(d=>{
+      const t = isCur && !isWeekend && d===todayName;
+      return `<div class="duty-day ${t?"today":""}"><h3>${d}${t?`<span class="badge">сегодня</span>`:""}</h3><div class="people">${(wk[d]||[]).map(p=>`<span class="person">${esc(p)}</span>`).join("")}</div></div>`;
+    }).join("");
+}
+const nextMonday = new Date(curMonday); nextMonday.setDate(nextMonday.getDate()+7);
+$("#dutySub").textContent = isWeekend ? "Сейчас выходные. Ниже дежурство на ближайшую неделю." : "Дежурные меняются каждую неделю сами.";
+$("#dutyDays").innerHTML = weekBlock(curMonday, isWeekend?"На ближайшей неделе":"На этой неделе", true)
+  + `<div style="margin-top:26px">` + weekBlock(nextMonday, isWeekend?"Потом":"На следующей неделе", false) + `</div>`;
+$("#tasks").innerHTML = DATA.dutyTasks.map(t=>`<li>${esc(t)}</li>`).join("");
+
+/* Парламент */
+$("#gov").innerHTML = DATA.parliament.map(p=>
+  `<li class="${p[3]||""}"><div class="role">${esc(p[0])}</div><div class="who">${esc(p[1])}</div><div class="does">${esc(p[2])}</div></li>`).join("");
+$("#next").innerHTML = `<b>${esc(DATA.nextMeeting.title)}</b><span>${esc(DATA.nextMeeting.when)}</span><p style="margin-top:6px">${esc(DATA.nextMeeting.topic)}</p>`;
+$("#decisions").innerHTML = DATA.decisions.map(d=>`<li><span class="d">${esc(d[0])}</span><span>${esc(d[1])}</span></li>`).join("");
+
+/* Вкладки + ссылка на конкретный лист (#duty, #schedule ...) */
+const tabs=[...document.querySelectorAll(".tab")];
+function show(k,push=true){
+  if(!tabs.some(t=>t.dataset.k===k)) k="students";
+  tabs.forEach(t=>t.setAttribute("aria-selected",t.dataset.k===k));
+  document.querySelectorAll(".sheet").forEach(s=>s.hidden = s.id!=="s-"+k);
+  if(push) history.replaceState(null,"","#"+k);
+}
+tabs.forEach(t=>{
+  t.onclick=()=>show(t.dataset.k);
+  t.onkeydown=e=>{
+    const i=tabs.indexOf(t);
+    if(e.key==="ArrowRight"){tabs[(i+1)%4].focus();tabs[(i+1)%4].click()}
+    if(e.key==="ArrowLeft"){tabs[(i+3)%4].focus();tabs[(i+3)%4].click()}
+  };
+});
+addEventListener("hashchange",()=>show(location.hash.slice(1),false));
+show(location.hash.slice(1)||"students",false);
+</script>
+</body>
+</html>
